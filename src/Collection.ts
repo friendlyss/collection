@@ -7,6 +7,10 @@ export class Collection<T = any> extends TypedEmitter<{
   private collection: T[] = []
   private primaryKey: string = 'id'
 
+  public get length() {
+    return this.collection.length
+  }
+
   public addMany(items: T[]) {
     for (const item of items) {
       this.set(item)
@@ -83,5 +87,9 @@ export class Collection<T = any> extends TypedEmitter<{
   private getPrimaryKey(item: Partial<T>) {
     // @ts-ignore
     return item[this.primaryKey]
+  }
+
+  public setPrimaryKeyField(field: string) {
+    this.primaryKey = field
   }
 }
