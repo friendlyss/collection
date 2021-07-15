@@ -6,6 +6,15 @@ export class Collection<T = any> extends TypedEmitter<{
 }> {
   private collection: T[] = []
   private primaryKey: string = 'id'
+  private _timer = setTimeout(() => {}, 0)
+
+  constructor(private delay = 1000) {
+    super()
+  }
+
+  public setDelay(delay: number) {
+    this.delay = delay
+  }
 
   public get length() {
     return this.collection.length
@@ -17,14 +26,16 @@ export class Collection<T = any> extends TypedEmitter<{
     }
   }
 
-  public set(item: Partial<T>) {
+  public set(item: Partial<T>, forceUpdate = false) {
     if (this.exists(this.getPrimaryKey(item))) {
       this.update(item)
     } else {
       this.add(item)
     }
 
-    this.forceUpdate()
+    if(forceUpdate) {
+      this.forceUpdate()
+    }
   }
 
   public all() {
@@ -58,14 +69,17 @@ export class Collection<T = any> extends TypedEmitter<{
   }
 
   public forceUpdate() {
-    this.emit('forceUpdate')
+    clearTimeout(this._timer)
+    this._timer = setTimeout(() => {
+      this.emit('forceUpdate')
+    }, this.delay)
   }
 
   public exists(primaryKey: any) {
     return !!this.findByPrimaryKey(primaryKey)
   }
 
-  public findBy(field: string, value: any) {
+  public findBy(field: keyof T, value: any) {
     return this.collection.find(item => {
       // @ts-ignore
       return item[field] === value
